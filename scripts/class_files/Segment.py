@@ -1,6 +1,7 @@
 import mediapipe as mp
 import numpy as np
 import cv2
+import collections
 
 class Segmentation:
     def __init__(self):
@@ -8,6 +9,7 @@ class Segmentation:
         self.mp_draw = mp.solutions.drawing_utils
         self.SMOOTHING_FACTOR = 0.3
         self.last_positions = {}
+        self.last_points =  collections.deque(maxlen=5)
 
     def get_smoothed_tip(self, frame):
         rgb_frame = frame
@@ -55,6 +57,36 @@ class Segmentation:
         return None, None
 
 
+    def draw_canny(self,center,frame,roi_size):
+        x, y = center
+        h, w, _ = frame.shape
+        x1, y1 = max(0, x - roi_size), max(0, y - roi_size)
+        x2, y2 = min(w, x + roi_size), min(h, y + roi_size)
+        roi = frame[y1:y2, x1:x2]
+
+        # Convert ROI to grayscale for edge detection
+        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
+        edges = cv2.Canny(gray, 50, 150)  # Edge detection
+        canny_frame = frame.copy()
+        # Expand segmentation outward by detecting contours
+        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        for cnt in contours:
+            cv2.drawContours(canny_frame[y1:y2, x1:x2], [cnt], -1, (0, 255, 0), 2)  # Green boundary
+
+        # Draw rectangle around detected region
+        cv2.rectangle(canny_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
+
+        return canny_frame
+
+    # def get_motion_smoothed_point(self,rgb_frame):
+    #     results = self.hands.process(rgb_frame)
+
+    #     if results.multi_hand_landmarks:
+    #         for hand_landmarks in results.multi_hand_landmarks:
+    #             self.mp_draw.draw_landmarks(rgb_frame, hand_landmarks, mp.solutions.hands.HAND_CONNECTIONS)
+
+
+
     # def calculate_roi_center(self,hand_landmarks, frame_width, frame_height):
     #     WEIGHTS = np.array([0.15, 0.15, 0.075, 0.075, 0.075, 0.075])  # Thumb, Index, Middle, Ring, Pinky, Palm center
     #     EXTENSION_FACTOR = 2  # Factor to extend the ROI center outward
@@ -95,26 +127,3 @@ class Segmentation:
     #     roi_center[1] = max(0, min(roi_center[1], frame_height - 1))
 
     #     return tuple(map(int, roi_center))
-
-    def draw_canny(self,center,frame,roi_size):
-        x, y = center
-        h, w, _ = frame.shape
-        x1, y1 = max(0, x - roi_size), max(0, y - roi_size)
-        x2, y2 = min(w, x + roi_size), min(h, y + roi_size)
-        roi = frame[y1:y2, x1:x2]
-
-        # Convert ROI to grayscale for edge detection
-        gray = cv2.cvtColor(roi, cv2.COLOR_BGR2GRAY)
-        edges = cv2.Canny(gray, 50, 150)  # Edge detection
-        canny_frame = frame.copy()
-        # Expand segmentation outward by detecting contours
-        contours, _ = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-        for cnt in contours:
-            cv2.drawContours(canny_frame[y1:y2, x1:x2], [cnt], -1, (0, 255, 0), 2)  # Green boundary
-
-        # Draw rectangle around detected region
-        cv2.rectangle(canny_frame, (x1, y1), (x2, y2), (0, 255, 0), 2)
-
-        return canny_frame
-
-    
