@@ -48,7 +48,7 @@ while cap.isOpened():
 
         blurred_frame = cv2.GaussianBlur(canny_frame, (5, 5), 0)  # Apply mild blur
         seg_frame = seg_model.predict(blurred_frame,points=[x,y])[0]
-        seg_frame_plot = cv2.resize(seg_frame.masks(conf=False,labels=False),(1920,1080))
+        seg_frame_plot = cv2.resize(seg_frame.plot(conf=False,labels=True),(1920,1080))
         bboxes = seg_frame.boxes.xyxy.cpu().numpy()
         if len(bboxes) > 0:
             distances = []
