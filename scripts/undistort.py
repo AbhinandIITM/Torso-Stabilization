@@ -1,3 +1,7 @@
+"""
+Shows the normalized coordinates of the camera in a color map.
+"""
+
 import cv2
 import numpy as np
 

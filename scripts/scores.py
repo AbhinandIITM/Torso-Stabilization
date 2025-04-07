@@ -4,14 +4,17 @@ import mediapipe as mp
 import numpy as np
 import torch
 from ultralytics import FastSAM
-import sys
+from ultralytics import YOLO
 import os
 import sys
-import os
 import ultralytics
+
 cv2.ocl.setUseOpenCL(False)
 import logging
 logging.getLogger('ultralytics').setLevel(logging.ERROR)
+os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
+
+
 from class_files.Segment import Segmentation
 from class_files.MiDaS_depth import MiDaS_depth
 from class_files.ApriltagModule import ApriltagModule
@@ -21,8 +24,9 @@ from class_files.MiDaS_depth import MiDaS_depth
 from class_files.ApriltagModule import ApriltagModule
 
 seg_model = FastSAM("FastSAM-s.pt")
+model = YOLO('yolov8n-seg.pt')
 root = os.getcwd()
-calib_data_path = os.path.join(root, 'charuco_calib', 'calib_data', 'MultiMatrix.npz') 
+calib_data_path = os.path.join(root, 'Torso-Stabilization','charuco_calib', 'calib_data', 'MultiMatrix.npz') 
 
 segment = Segmentation()
 depth = MiDaS_depth()
@@ -30,6 +34,8 @@ apriltag = ApriltagModule(calib_data_path=calib_data_path,family='tag36h11',tag_
 
 ROI_SIZE = 100
 cap = cv2.VideoCapture(2)
+cv2.startWindowThread()
+
 while cap.isOpened():
     success, frame = cap.read()
     if not success:
@@ -42,7 +48,7 @@ while cap.isOpened():
 
         blurred_frame = cv2.GaussianBlur(canny_frame, (5, 5), 0)  # Apply mild blur
         seg_frame = seg_model.predict(blurred_frame,points=[x,y])[0]
-        seg_frame_plot = cv2.resize(seg_frame.plot(conf=False,labels=False),(1920,1080))
+        seg_frame_plot = cv2.resize(seg_frame.masks(conf=False,labels=False),(1920,1080))
         bboxes = seg_frame.boxes.xyxy.cpu().numpy()
         if len(bboxes) > 0:
             distances = []
@@ -72,10 +78,11 @@ while cap.isOpened():
                 cv2.putText(seg_frame_plot, score_text, (x1, y1 - 10), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 255), 2)
         
         cv2.imshow("Segmented Object", seg_frame_plot)  
-        cv2.namedWindow("Segmented Object",cv2.WINDOW_NORMAL)
+        
     else:            
-        cv2.namedWindow("orig_frame",cv2.WINDOW_NORMAL)
+        cv2.namedWindow("orig frame", cv2.WINDOW_NORMAL)
         cv2.imshow("orig frame", frame)
+
     if cv2.waitKey(1) & 0xFF == ord("q"):
         break
 
