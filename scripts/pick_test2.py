@@ -3,8 +3,8 @@ import cv2, numpy as np, os, logging, time
 from collections import defaultdict
 
 # Optional: your own Segmentation and MiDaS depth modules
-from class_files.Segment import Segmentation
-from class_files.MiDaS_depth import MiDaS_depth
+from utils.Segment import Segmentation
+from utils.MiDaS_depth import MiDaS_depth
 
 cv2.ocl.setUseOpenCL(False)
 logging.getLogger('ultralytics').setLevel(logging.ERROR)

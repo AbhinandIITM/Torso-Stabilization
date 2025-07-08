@@ -1,10 +1,10 @@
-from class_files.Segment import Segmentation
-from class_files.MiDaS_depth import MiDaS_depth
-from class_files.ApriltagModule import ApriltagModule
+from utils.Segment import Segmentation
+from utils.MiDaS_depth import MiDaS_depth
+from utils.ApriltagModule import ApriltagModule
 from ultralytics import YOLO
 import cv2, numpy as np, os, logging, time
 from collections import defaultdict
-from class_files.Zoe_Depth import Zoe_Depth
+from utils.Zoe_Depth import Zoe_Depth
 
 cv2.ocl.setUseOpenCL(False)
 logging.getLogger('ultralytics').setLevel(logging.ERROR)

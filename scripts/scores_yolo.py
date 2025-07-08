@@ -9,14 +9,14 @@ cv2.ocl.setUseOpenCL(False)
 logging.getLogger('ultralytics').setLevel(logging.ERROR)
 os.environ["OPENCV_LOG_LEVEL"] = "SILENT"
 
-from class_files.Segment import Segmentation
-from class_files.MiDaS_depth import MiDaS_depth
-from class_files.ApriltagModule import ApriltagModule
+from utils.Segment import Segmentation
+from utils.MiDaS_depth import MiDaS_depth
+from utils.ApriltagModule import ApriltagModule
 
 model = YOLO('yolov8n-seg.pt')  # Using YOLOv8 segmentation model
 
 root = os.getcwd()
-calib_data_path = os.path.join(root, 'Torso-Stabilization','charuco_calib', 'calib_data', 'MultiMatrix.npz') 
+calib_data_path = os.path.join(root,'charuco_calib', 'calib_data', 'MultiMatrix.npz') 
 
 segment = Segmentation()
 depth = MiDaS_depth()
@@ -48,6 +48,9 @@ while cap.isOpened():
             distances = []
 
             for i, box in enumerate(bboxes):
+                if class_names[classes[i]] == "person":
+                    continue  # Skip person class
+
                 x1, y1, x2, y2 = map(int, box)
                 center_x, center_y = (x1 + x2) // 2, (y1 + y2) // 2
 

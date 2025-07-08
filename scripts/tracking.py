@@ -1,15 +1,15 @@
 import sys
 import os
 
-# # Get the absolute path to the `class_files/` directory
+# # Get the absolute path to the `utils/` directory
 # script_dir = os.path.dirname(os.path.abspath(__file__))  # Path to `scripts/`
-# class_files_dir = os.path.join(script_dir, "../class_files")  # Path to `class_files/`
+# utils_dir = os.path.join(script_dir, "../utils")  # Path to `utils/`
 
-# # Add `class_files/` to Python's module search path
-# sys.path.append(class_files_dir)
-from class_files.Segment import Segmentation
-from class_files.MiDaS_depth import MiDaS_depth
-from class_files.ApriltagModule import ApriltagModule
+# # Add `utils/` to Python's module search path
+# sys.path.append(utils_dir)
+from utils.Segment import Segmentation
+from utils.MiDaS_depth import MiDaS_depth
+from utils.ApriltagModule import ApriltagModule
 import cv2
 import numpy as np
 from dt_apriltags import Detector

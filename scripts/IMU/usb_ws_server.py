@@ -7,6 +7,7 @@ from foxglove_websocket.server import FoxgloveServer, FoxgloveServerListener
 from foxglove_websocket.types import ChannelId
 import websockets
 
+
 FOXGLOVE_PORT = 8700
 IMU_WEBSOCKET_PORT = 8001
 SERVER_START_TIME = time.time()
@@ -51,7 +52,7 @@ class Listener(FoxgloveServerListener):
 
 imu_tracker = IMUTracker()
 
-async def imu_websocket_handler(websocket, path, server, channel_id, tf_channel_id):
+async def imu_websocket_handler(websocket, server, channel_id, tf_channel_id):
     async for message in websocket:
         try:
             data = json.loads(message)
@@ -227,10 +228,13 @@ async def start_imu_server():
             )
 
         imu_server = websockets.serve(
-            lambda ws, path: imu_websocket_handler(ws, path, server, imu_channel_id, tf_channel_id),
+            lambda websocket: imu_websocket_handler(websocket, server, imu_channel_id, tf_channel_id),
             "0.0.0.0",
             IMU_WEBSOCKET_PORT,
         )
+
+
+
 
         await imu_server
         print(f"Foxglove server running on ws://localhost:{FOXGLOVE_PORT}")
