@@ -25,7 +25,7 @@ class IMUTracker:
         self.orientation = self.orientation * delta_rot
 
         accel_world = self.orientation.apply(accel)
-        accel_world[2] -= 9.81  # Remove gravity
+        accel_world[2] -= 0  # Remove gravity
 
         self.velocity += accel_world * dt
         self.position += self.velocity * dt
